@@ -1,9 +1,17 @@
 {
   description = "Manage SSH keys with Nix";
-  inputs.nixpkgs.url = "github:NixOS/nixpkgs/release-23.11";
-  outputs = {
+
+  inputs = {
+    nixpkgs.url = "github:NixOS/nixpkgs/release-23.11";
+    shoji = {
+      url = "github:mrdev023/shoji";
+      inputs.nixpkgs.follows = "nixpkgs";
+    };
+  };
+  outputs = inputs@{
     self,
     nixpkgs,
+    ...
   }: let
     systems = [
       "x86_64-linux"
@@ -18,7 +26,7 @@
     packagesForSystem = system: let
       pkgs = nixpkgs.legacyPackages.${system};
 
-      shoji = pkgs.callPackage ./pkgs/shoji.nix { };
+      shoji = inputs.shoji.packages.${system}.default;
 
       shojiInitAgeScript = pkgs.writeShellScriptBin "shoji-init" ''
         #!/usr/bin/env bash
